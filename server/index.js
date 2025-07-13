@@ -1,70 +1,39 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import { Socket } from 'socket.io-client';
 
+import cors from 'cors';
+import { ALL } from 'dns';
 const app = express();
-app.use(cors());
-app.use(express.json());
-
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173", // Vite's default port
-    methods: ["GET", "POST"]
-  }
+const io = new Server(server,{
+  connectionStateRecovery: {}
 });
 
-// Store active interview sessions
-const activeSessions = new Map();
 
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
 
-  // HR creates a new interview session
-  socket.on('create-session', ({ sessionId, hrId }) => {
-    activeSessions.set(sessionId, {
-      hrId,
-      hrSocket: socket.id,
-      candidates: new Set()
-    });
-    socket.join(sessionId);
-    socket.emit('session-created', { sessionId });
-  });
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors(ALL))
 
-  // Candidate joins an interview session
-  socket.on('join-session', ({ sessionId, candidateId }) => {
-    const session = activeSessions.get(sessionId);
-    if (session) {
-      session.candidates.add(candidateId);
-      socket.join(sessionId);
-      socket.to(session.hrSocket).emit('candidate-joined', { candidateId });
-      socket.emit('joined-session', { sessionId });
-    }
-  });
 
-  // Handle WebRTC signaling
-  socket.on('signal', ({ sessionId, signal, to }) => {
-    socket.to(to).emit('signal', {
-      from: socket.id,
-      signal
-    });
-  });
+app.use(express.static('public'));
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-    // Clean up sessions if HR disconnects
-    activeSessions.forEach((session, sessionId) => {
-      if (session.hrSocket === socket.id) {
-        io.to(sessionId).emit('session-ended');
-        activeSessions.delete(sessionId);
-      }
-    });
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+ io.on('connection', (socket) => {
+  socket.on('chat message', (msg) => {
+    console.log('Message received:', msg);
+    
+    io.emit('chat message', msg);
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+
+server.listen(3000, () => {
+  console.log('listening on *:3000');
+} );
