@@ -1,39 +1,38 @@
-import express from 'express';
-import http from 'http';
-import { Server } from 'socket.io';
-import { Socket } from 'socket.io-client';
+const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+const cors = require("cors");
 
-import cors from 'cors';
-import { ALL } from 'dns';
 const app = express();
+app.use(cors());
+
 const server = http.createServer(app);
-const io = new Server(server,{
-  connectionStateRecovery: {}
+const io = socketIo(server, {
+  cors: { origin: "*" }
 });
 
+io.on("connection", (socket) => {
+  console.log("A user connected");
 
+  socket.on("join-room", ({ roomId, userId }) => {
+    console.log(`User ${userId} joined room ${roomId}`);
+    socket.join(roomId);
+    socket.to(roomId).emit("user-connected", userId);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors(ALL))
+    socket.on("offer", (data) => {
+      socket.to(roomId).emit("offer", data);
+    });
 
+    socket.on("answer", (data) => {
+      socket.to(roomId).emit("answer", data);
+    });
 
-app.use(express.static('public'));
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
-});
-
- io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => {
-    console.log('Message received:', msg);
-    
-    io.emit('chat message', msg);
+    socket.on("ice-candidate", (data) => {
+      socket.to(roomId).emit("ice-candidate", data);
+    });
   });
 });
 
-
-
 server.listen(3000, () => {
-  console.log('listening on *:3000');
-} );
+  console.log("Socket server running at http://localhost:3000");
+});

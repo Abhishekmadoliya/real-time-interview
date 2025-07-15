@@ -7,6 +7,7 @@ import Login from './components/auth/Login'
 import Signup from './components/auth/Signup'
 import Create from './components/interview/Create'
 import JoinSession from './components/interview/JoinSession'
+import VideoCall from './components/video/VideoCall'
 const App = () => {
   return (
 
@@ -21,6 +22,7 @@ const App = () => {
           {/* <Route path='/interview' element={<Interview/>}/> */}
           <Route path='/login' element={<Login/>}/>
           <Route path='/signup' element={<Signup/>}/>
+          <Route path='/video/:roomId' element ={<VideoCall/>}/>
         </Routes>
       
       
