@@ -1,27 +1,23 @@
-
-
-import React from 'react'
+import React from "react";
 
 const Navbar = () => {
   return (
     <div>
-        <nav>
-          <ul className="navbar flex justify-between items-center bg-gray-800 text-white p-4">
-            <li>Home</li>
-            <li>About</li>
-            <li>Contact</li>
-          </ul>
+      <nav className=" flex justify-between items-center p-4 bg-black">
+        <ul className=" flex gap-4 text-white">
+          <li>Home</li>
+          
+          <li>About</li>
+          <li>Contact</li>
+        </ul>
 
-          <button>Login
-
-          </button>
-        <button>Sign Up</button>
-
-
-        </nav>
-      
+        <div className=" flex gap-4 text-white">
+        <button className=" bg-blue-500 text-white p-2 rounded-md cursor-pointer">Log in</button>
+          <button className=" bg-blue-500 text-white p-2 rounded-md cursor-pointer">Sign Up</button>
+        </div>
+      </nav>
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
