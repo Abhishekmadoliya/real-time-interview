@@ -33,6 +33,19 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get("/", (req, res) => {
+  res.send("Socket server is running");
+});
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+const authRoutes = require("./routes/auth");
+app.use("/auth", authRoutes);
+app.use((req, res, next) => {
+  res.status(404).send("Not Found");
+});
+
 server.listen(3000, () => {
   console.log("Socket server running at http://localhost:3000");
 });
