@@ -2,14 +2,30 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
+const dontenv = require('dotenv').config();
 
+const mongoose = require('mongoose');
 const app = express();
 app.use(cors());
-
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: { origin: "*" }
 });
+
+const connecttoDB = async ()=>{
+  try {
+    
+    await mongoose.connect(process.env.MONGO_URI)
+    console.log("connected to db succusfully");
+    
+  } catch (error) {
+    console.log("error in db connection ", error);
+    
+  }
+}
+
+connecttoDB();
+
 
 io.on("connection", (socket) => {
   console.log("A user connected");
@@ -41,6 +57,7 @@ app.get("/", (req, res) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const authRoutes = require("./routes/auth");
+const { default: connectToDB } = require("./db/connecttodb");
 app.use("/auth", authRoutes);
 app.use((req, res, next) => {
   res.status(404).send("Not Found");
