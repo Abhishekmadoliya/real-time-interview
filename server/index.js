@@ -2,7 +2,8 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
-const dontenv = require('dotenv').config();
+const dontenv = require('dotenv');
+dontenv.config();
 
 const mongoose = require('mongoose');
 const app = express();
@@ -20,6 +21,7 @@ const connecttoDB = async ()=>{
     
   } catch (error) {
     console.log("error in db connection ", error);
+    
     
   }
 }
