@@ -37,33 +37,36 @@ exports.login = async(req,res)=>{
 
 
 
-exports.signup = async (req,res) => {
+exports.signup = async (req, res) => {
   try {
-    const {email,password,username,role} = req.body;
-    if(!email || !password || !username || !role){
-      res.status(400).json({message:"all fields are required"});
-    }
-    // check id email already in database
+    const { email, password, username, role } = req.body;
 
-    const isregistered = await User.findOne(email);
-    if(isregistered){
-      res.status(400).json({message:"user already registered ",status:400})
+    if (!email || !password || !username || !role) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    const saltvalue = 10;
-    const hashedpass = await bcrypt.hash(password,saltvalue);
+    // Check if email is already registered
+    const isRegistered = await User.findOne({ email });
+    if (isRegistered) {
+      return res.status(409).json({ message: "User already registered", status: 409 });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newUser = new User({
-      username: username,
-      email:email,
-      role:role,
-      password:hashedpass
-    })
+      username,
+      email,
+      role,
+      password: hashedPassword
+    });
 
     await newUser.save();
-    res.status(201).json({message:"user registered successfully",status:201})
-    
+    return res.status(201).json({ message: "User registered successfully", status: 201 });
+
   } catch (error) {
-    
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error", status: 500 });
   }
-}
+};
+

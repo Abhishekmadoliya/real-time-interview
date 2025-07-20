@@ -8,6 +8,8 @@ dontenv.config();
 const mongoose = require('mongoose');
 const app = express();
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: { origin: "*" }
@@ -56,8 +58,7 @@ app.get("/", (req, res) => {
 });
 
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
 const authRoutes = require("./routes/auth");
 const { default: connectToDB } = require("./db/connecttodb");
 app.use("/auth", authRoutes);
